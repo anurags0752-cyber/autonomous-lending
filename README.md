@@ -1,3 +1,5 @@
+> **Note on `.env`**: I have intentionally included [`.env`](.env) file in version control with dummy/testnet configuration so reviewers and recruiters can inspect the required environment variables and run the deployment script out of the box. **In real-world production smart contract engineering, `.env` files and private keys are strictly git-ignored and never published.**
+
 # Autonomous Lending Protocol
 
 ![Solidity](https://img.shields.io/badge/Solidity-%5E0.8.24-363636?logo=solidity)
@@ -271,6 +273,25 @@ forge test --match-path test/invariants/LendingInvariants.t.sol -vvv
 forge test --gas-report
 ```
 
+### Deploying the Protocol
+
+1. Configure your RPC URL and deployer key in [`.env`](.env):
+   ```bash
+   source .env
+   ```
+2. Run the deployment script ([`script/DeployLendingPool.s.sol`](script/DeployLendingPool.s.sol)):
+   ```bash
+   # Dry-run simulation
+   forge script script/DeployLendingPool.s.sol:DeployLendingPool
+
+   # Broadcast & verify on Sepolia testnet
+   forge script script/DeployLendingPool.s.sol:DeployLendingPool \
+     --rpc-url $SEPOLIA_RPC_URL \
+     --broadcast \
+     --verify \
+     --etherscan-api-key $ETHERSCAN_API_KEY
+   ```
+
 ---
 
 ## 6. Repository Structure
@@ -281,6 +302,8 @@ autonomous-lending/
 │   ├── LendingPool.sol             # Core lending market, share accounting & AMM liquidation engine
 │   ├── InterestRateModel.sol       # Two-slope kinked utilization interest rate calculator (RAY)
 │   └── OracleRouter.sol            # Chainlink V3 price feed aggregator with heartbeat checks
+├── script/
+│   └── DeployLendingPool.s.sol     # Automated deployment script for RateModel, OracleRouter & Pool
 ├── test/
 │   ├── unit/
 │   │   ├── LendingPool.t.sol       # End-to-end lifecycle & liquidation scenario tests
